@@ -1,24 +1,40 @@
 extends layout
 
 block content
+  .playing
+    p Playing:
+      span.title 
   h1= title
   p Welcome to #{title}
-  a.btn.btn-primary.btn-lg(href="/play") PLAY
-  a.btn.btn-primary.btn-lg(href="/pause") PAUSE
+
   .spacer(style="height:100px")
   a.btn.btn-primary.btn-lg.restart(href="/restart") Restart
+
   //p=series
-  .rewind
-  .play
-  .pause
-  .fastforward  
+  .card
+    .card-header 
+      h4 Media controls
+    .card-body
+      .container
+        .row
+          .col-sm
+            .rewind
+          .col-sm    
+            .play
+          .col-sm    
+            .pause
+          .col-sm    
+            .fastforward  
   p &nbsp;
   p &nbsp;
   p &nbsp;
   - var folders=Object.keys(series)
   - count=0
   each folder in folders
-    h1=folder
-    each serie in series[folder]
-      a.btn.btn-success(href="/start?idx="+count)=serie
-      - count++	
+    .card
+      .card-header
+        h4=folder
+      .card-body
+        each serie in series[folder]
+          .btn.btn-success.video(href="/start?idx="+count,count=count)=serie
+          - count++	

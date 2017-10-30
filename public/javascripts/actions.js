@@ -10,6 +10,31 @@ $(document).ready(function(){
 
     }})
   })
+    $('.rewind').on('click',function(){
+     $.ajax({
+          url: "/rewind",
+          type: 'GET',
+          contentType: 'application/json',
+          data: JSON.stringify({path:"ssss",up:true}),
+          success: function(data,textStatus,jqXHR){
+
+    }})
+  })
+  $('.video').on('click',function(){
+     count=$(this).attr('count');
+     $.ajax({
+          url: "/start?idx="+count,
+          type: 'GET',
+          contentType: 'application/json',
+          data: JSON.stringify({path:"ssss",up:true}),
+          success: function(data,textStatus,jqXHR){
+            $('.play').addClass('active')
+            $('.pause').removeClass('active')
+          }
+    })
+  })
+
+
   $('.play').on('click',function(){
      $.ajax({
           url: "/play",
@@ -34,67 +59,23 @@ $(document).ready(function(){
           }
     })
   })
+  function getTitle(){
 
-
-  var loadingWidth=$('body').width();
-  $('body').prepend("<div><p>"+loadingWidth+"</p></div>");
-  $('button.upDir').on('click',function(){
-    $(this).attr('path');
-    path=$(this).attr('path');
-    $.ajax({
-      url: "/ls",
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({path:path,up:true}),
-      success: function(data,textStatus,jqXHR){
-        console.log(data);
-        //Bad practise.
-        $('button.upDir').attr('path',data.origin);
-        $('table tr').empty();
-        for( row in data.dirs){
-          var tr='<tr class="row"><td class="folder" style="width:100%; "path="'+data.origin+'/'+data.dirs[row]+'"><img class="float-left" style="width:25px;margin:10px;" src="/images/folder.png"><p class="float-left" style="margin:10px;">'+data.dirs[row]+'</p></td></tr>';
-          $('table tbody').append(tr);
-        }
-        for( row in data.files){
-          var tr='<tr class="row"><td class="file" style="width:100%;"><img class="float-left" style="width:25px;margin:10px;" src="/images/file.png"><p class="float-left" style="margin:10px;">'+data.files[row]+'</p></td></tr>';
-          $('table tbody').append(tr);
-        }
-        $('button.nav:last()').remove();
-        rows();
-      }
-    });
-  })
-  function rows(){
-    //Set for rows dirs only
-    $('table td.folder').on('click',function(){
-
-      path=$(this).attr('path');
-      $.ajax({
-        url: "/ls",
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({path:path,up:false}),
-        success: function(data,textStatus,jqXHR){
-          console.log(data);
-          $('button.upDir').attr('path',data.origin);
-          $('table tr').empty();
-          for( row in data.dirs){
-            var tr='<tr class="row"><td class="folder" style="width:100%;" path="'+data.origin+'/'+data.dirs[row]+'"><img class="float-left" style="width:25px;margin:10px;" src="/images/folder.png"><p class="float-left" style="margin:10px;">'+data.dirs[row]+'</p></td></tr>';
-            $('table tbody').append(tr);
+     $.ajax({
+          url: "/metadata/title",
+          type: 'GET',
+          contentType: 'application/json',
+          data: JSON.stringify({path:"ssss",up:true}),
+          success: function(data,textStatus,jqXHR){
+            $('.playing .title').text(data);
           }
-          for( row in data.files){
-            var tr='<tr class="row"><td class="file" style="width:100%;" path="'+data.origin+'/'+data.files[row]+'"><img class="float-left" style="width:25px;margin:10px;" src="/images/file.png"><p class="float-left" style="margin:10px;">'+data.files[row]+'</p><img class="shareFile float-right" style="width:25px;margin:10px;" src="/images/share.png"></td></tr>';
-            $('table tbody').append(tr);
-          }
-          rows();
-          //Add sharing to new elements
-          share();
-        }
-      });
-    })
-  };
-  rows();
+        })
+  }
+getTitle();
+setInterval(function(){ getTitle() }, 30000);  
+
   function share(){
+   //bootstrap function popover
     $('tbody .shareFile').popover('dispose');
     $('tbody .shareFile').on('click',function(){
         that=$(this);
@@ -117,29 +98,6 @@ $(document).ready(function(){
         });
     })
   }
-  share();
-  $("table.permissionsTable .actions img.removeShare").on('click',function(){
-   var that=$(this);
-   var alert=$('tr.alertRemove').clone().show();
-   that.closest('tr').prev('tr').show();
-  })
-  $("tr.alertRemove .btn.yes").on('click',function(){
-   var that = $(this); 
-   var hash=$(this).closest('tr').next("tr").children('td.hash').contents('p.hash').text()  
-   $.ajax({
-    url: "/delete",
-    type: 'POST',
-    that:that,
-    contentType: 'application/json',
-    data: JSON.stringify({hash:hash}),
-    success: function(data,textStatus,jqXHR){
-      var that = this.that;
-      that.closest('tr').remove();
-      that.closest('tr').next('tr').remove();
-      }
-    });
-    
-  })
 
 
 })

@@ -24,6 +24,15 @@ a {
 .active{
 	background-image: url('/images/buttons-selected.png');
 }
+.rewind{
+	width:200px;
+	height:160px;
+	background-image: url('/images/buttons-unselected.png');
+	background-size: 650px;
+	background-repeat: no-repeat;
+    background-position-x: -1px;
+    background-position-y: -175px;
+}
 /*.play.active{
 	width:200px;
 	height:160px;
@@ -41,6 +50,11 @@ a {
 	background-position-x: -225px;
 }*/
 
+.playing{
+	position: fixed;
+    top: 10px;
+    background-color: aliceblue;
+}
 
 .fastforward{
 	width:200px;
