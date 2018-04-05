@@ -1,8 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var exec = require('child_process').exec;
-var cp=require('child_process')
-var path=require('path')
+var cp=require('child_process');
+var path=require('path');
+//var glob=require('glob');
 /* GET home page. */
 
 
@@ -11,14 +12,15 @@ var path=require('path')
 // Add success response for ajax to continue
 //
 
-var remote_server="ssh 192.168.1.5" //Leave empty if local 
+var remote_server="" //Leave empty if local 
+var remote_server="ssh localhost" //Leave empty if local 
 var remote_folder="/media/brunocosta/prime-backup/Torrents-active/"
 
 //List videos
 function listVideos(){
   return new Promise(
     function(resolve,reject){
-      exec("ssh 192.168.1.5 'find ~/Sync/Torrents-active/**/*.mkv'",function(err,sdout,sderr){
+      exec('find ~/Sync/Torrents-active/**/*.m*',function(err,sdout,sderr){
       //exec(remote_server+" 'find "+remote_folder+"**/*.mkv'",function(err,sdout,sderr){
       if(err) reject(Error(err)); 
       resolve(sdout.toString().split("\n"))        
@@ -31,8 +33,7 @@ function listVideos(){
 function getTitle(){
   return new Promise(
     function(resolve,reject){
-      //exec("ssh 192.168.1.5 'find ~/Sync/Torrents-active/**/*.mkv'",function(err,sdout,sderr){
-      exec(remote_server+" 'playerctl metadata title'",function(err,sdout,sderr){
+      exec("playerctl metadata title",function(err,sdout,sderr){
       if(err) reject(Error(err)); 
       resolve(sdout.toString())        
       })
@@ -59,10 +60,13 @@ function videos(){
         var files=data
         var series={}
         for( i in files ){
-          try{
+          try{ 
             series[path.dirname(files[i]).split("/")[path.dirname(files[i]).split("/").length-1]].push(path.basename(files[i]));
           }catch(err){
-            series[path.dirname(files[i]).split("/")[path.dirname(files[i]).split("/").length-1]]=[path.basename(files[i])];
+            seriesName=path.dirname(files[i]).split("/")[path.dirname(files[i]).split("/").length-1]
+            if(seriesName!="Sample"){
+              series[seriesName]=[path.basename(files[i])];
+            }
           }
         }
         var result={paths:data,series:series}
@@ -71,6 +75,8 @@ function videos(){
       }catch(err){
         reject(err)
       }
+    }).catch(function(err){
+      console.log(err);
     })
   })
 }
@@ -79,6 +85,8 @@ function videos(){
 router.get('/', function(req, res, next) {
   videos().then(function(data){
     res.render('index', { title: "Remote",paths:data.paths, series: data.series });
+  }).catch(function(err){
+    console.log("Cannot get title: "+err);
   });   
 });
 
@@ -96,12 +104,16 @@ router.get('/start', function(req, res, next) {
     downloadSubtitle(file).then(function(subRes){
       console.log(subRes);
       if (subRes.split(" ")[0]=="Successfully"){
-        exec(remote_server+" ';pkill -9 vlc;DISPLAY=:0 vlc -f \""+file+"\" --sub-file=\""+file.replace('.mkv','.srt')+"\" &'")      
+        exec(remote_server+" ';pkill -9 vlc;DISPLAY=:0 vlc -f \""+file+"\" --sub-file=\""+file.replace(/\.m.*$/g,'.srt')+"\" &'")      
       }else{
         exec(remote_server+" ';pkill -9 vlc;DISPLAY=:0 vlc -f \""+file+"\" &'")      
       }
       res.render('index', { title: "Remote",paths:data.paths, series: data.series });
+    }).catch(function(err){
+      console.log("Unable to download subtitle "+err);
     })
+  }).catch(function(err){
+    console.log("Get videos list: "+err);
   });   
 });
 
@@ -110,6 +122,8 @@ router.get('/ffwd', function(req, res, next) {
     exec(remote_server+" 'playerctl position 15+'");      
     //Add ok when done
     res.render('index', { title: "Remote",paths:data.paths, series: path.series});
+  }).catch(function(err){
+    console.log("Unable to fast forward: "+err);
   });   
 });
 router.get('/rewind', function(req, res, next) {
@@ -117,6 +131,8 @@ router.get('/rewind', function(req, res, next) {
     exec(remote_server+" 'playerctl position 15-'");      
     //Add ok when done
     res.render('index', { title: "Remote",paths:data.paths, series: path.series});
+  }).catch(function(err){
+    console.log("Unable to get videos : "+err)
   });   
 });
 
@@ -125,18 +141,24 @@ router.get('/play', function(req, res, next) {
   videos().then(function(data){
     exec(remote_server+" 'playerctl play'")    
     res.render('index', { title: 'Play',series:data.series});
+  }).catch(function(err){
+    console.log("Unable to get videos and play : "+err)
   })
 });
 router.get('/pause', function(req, res, next) {
   videos().then(function(data){
     exec(remote_server+" 'playerctl pause'")   
     res.render('index', { title: 'Pause',series:data.series });
+  }).catch(function(err){
+    console.log("Unable to get videos or pause : "+err)
   })
 });
 router.get('/restart', function(req, res, next) {
   videos().then(function(data){
     exec(remote_server+" 'playerctl position +0'")   
     res.render('index', { title: 'Pause',series:data.series, });
+  }).catch(function(err){
+    console.log("Unable to get videos and restart : "+err)
   })
 });
 router.get('/restart1', function(req, res, next) {
