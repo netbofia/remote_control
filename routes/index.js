@@ -96,6 +96,25 @@ router.get('/metadata/title', function(req, res, next) {
     })  
 });
 
+router.get('/volume/up', function(req, res, next) {
+  videos().then(function(data){
+    exec("playerctl volume +")
+    res.render('index', { title: "Remote",paths:data.paths, series: data.series });
+  }).catch(function(err){
+    console.log("Cannot get title: "+err);
+  });   
+});
+
+
+router.get('/volume/down', function(req, res, next) {
+  videos().then(function(data){
+    exec("playerctl volume -")
+    res.render('index', { title: "Remote",paths:data.paths, series: data.series });
+  }).catch(function(err){
+    console.log("Cannot get title: "+err);
+  });   
+});
+
 
 router.get('/start', function(req, res, next) {
   console.log(req.query);
