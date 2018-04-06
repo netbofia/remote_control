@@ -98,17 +98,17 @@ router.get('/metadata/title', function(req, res, next) {
 
 router.get('/volume/up', function(req, res, next) {
   videos().then(function(data){
-    exec("playerctl volume +")
+    exec("playerctl volume 10+")
     res.render('index', { title: "Remote",paths:data.paths, series: data.series });
   }).catch(function(err){
-    console.log("Cannot get title: "+err);
+    console.log("Problem getting volume up: "+err);
   });   
 });
 
 
 router.get('/volume/down', function(req, res, next) {
   videos().then(function(data){
-    exec("playerctl volume -")
+    exec('playerctl volume 10-')
     res.render('index', { title: "Remote",paths:data.paths, series: data.series });
   }).catch(function(err){
     console.log("Cannot get title: "+err);
