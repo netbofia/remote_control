@@ -26,6 +26,21 @@ block content
             .pause
           .col-sm    
             .fastforward  
+        .row.position-control
+          form.form-inline
+            .input-group.mb-2
+              button.getPosition.btn.btn-secondary.form-control(type="button",id="submit") Get Position
+              .input-group-addon Hours   
+              input.hours.form-control(type="number",id="hours",placeholder="00",min="0",max="24",value="0")
+            .input-group.mb-2
+              .input-group-addon Minutes   
+              input.minutes.form-control(type="number",id="minutes",placeholder="00",min="0",max="60",value="0")
+            .input-group.mb-2
+              .input-group-addon Seconds      
+              input.seconds.form-control(type="number",id="seconds",placeholder="00",min="0",max="60",value="0")
+            .input-group.mb-2
+              button.setPosition.btn.btn-primary.form-control(type="button",id="submit") Set Position
+
   p &nbsp;
   p &nbsp;
   p &nbsp;
