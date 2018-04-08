@@ -15,12 +15,13 @@ var path=require('path');
 var remote_server="" //Leave empty if local 
 var remote_server="ssh localhost" //Leave empty if local 
 var remote_folder="/media/brunocosta/prime-backup/Torrents-active/"
+var remote_folder="/home/brunocosta/Torrents/mount2/brunocosta/prime-backup/Torrents-active/"
 
 //List videos
 function listVideos(){
   return new Promise(
     function(resolve,reject){
-      exec('find ~/Sync/Torrents-active/**/*.m*',function(err,sdout,sderr){
+      exec('find '+remote_folder+'**/*.m*',function(err,sdout,sderr){
       //exec(remote_server+" 'find "+remote_folder+"**/*.mkv'",function(err,sdout,sderr){
       if(err) reject(Error(err)); 
       resolve(sdout.toString().split("\n"))        
@@ -186,5 +187,20 @@ router.get('/restart1', function(req, res, next) {
   exec(remote_server+" 'playerctl position +110'")   
   res.render('index', { title: 'Pause',series:series });
 });
+
+router.post('/position/set',function(req,res,next){
+  query=req.body
+  position=parseInt(query.hours)*3600+parseInt(query.minutes)*60+parseInt(query.seconds);
+  exec('playerctl position '+position);
+  res.send(200);
+})
+
+router.post('/position/get',function(req,res,next){
+  exec('playerctl position ',function(err,sdout,sderr){
+    if (err) res.send(400);
+    res.json( sdout )
+  });
+
+})
 
 module.exports = router;
