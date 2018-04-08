@@ -59,13 +59,48 @@ $(document).ready(function(){
           }
     })
   })
+
+  $('.setPosition').on('click',function(){
+     $.ajax({
+          url: "/position/set",
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            hours:$('input.hours').val(),
+            minutes:$('input.minutes').val(),
+            seconds:$('input.seconds').val()
+          }),
+          success: function(data,textStatus,jqXHR){
+
+    }})
+  })
+
+  $('.getPosition').on('click',function(){
+    $.ajax({
+      url: "/position/get",
+      type: 'POST',
+      success: function(data,textStatus,jqXHR){
+        console.log("Page data: "+data);
+        var hours=Math.floor(data/3600);
+        var minutes=Math.floor((data-hours*3600)/60);
+        var seconds=Math.floor(data-minutes*60-hours*3600);
+        $('input.hours').val(hours);
+        $('input.minutes').val(minutes);
+        $('input.seconds').val(seconds);
+        console.log(hours);
+        console.log(minutes);
+        console.log(seconds);
+      }
+    })
+  })
+
   function getTitle(){
 
      $.ajax({
           url: "/metadata/title",
           type: 'GET',
           contentType: 'application/json',
-          data: JSON.stringify({path:"ssss",up:true}),
+          data: JSON.stringify({}),
           success: function(data,textStatus,jqXHR){
             $('.playing .title').text(data);
           }
