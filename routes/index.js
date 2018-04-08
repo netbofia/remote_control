@@ -34,7 +34,7 @@ function listVideos(){
 function getTitle(){
   return new Promise(
     function(resolve,reject){
-      exec("playerctl metadata title",function(err,sdout,sderr){
+      exec(remote_server+" 'playerctl metadata title'",function(err,sdout,sderr){
       if(err) reject(Error(err)); 
       resolve(sdout.toString())        
       })
@@ -101,7 +101,7 @@ router.get('/metadata/title', function(req, res, next) {
 
 router.get('/volume/up', function(req, res, next) {
   videos().then(function(data){
-    exec("playerctl volume 10+")
+    exec(remote_server+" 'playerctl volume 0.10+'")
     res.render('index', { title: "Remote",paths:data.paths, series: data.series });
   }).catch(function(err){
     console.log("Problem getting volume up: "+err);
@@ -111,7 +111,7 @@ router.get('/volume/up', function(req, res, next) {
 
 router.get('/volume/down', function(req, res, next) {
   videos().then(function(data){
-    exec('playerctl volume 10-')
+    exec(remote_server+" 'playerctl volume 0.10-'")
     res.render('index', { title: "Remote",paths:data.paths, series: data.series });
   }).catch(function(err){
     console.log("Problem getting volume down: "+err);
